@@ -1,5 +1,12 @@
 import { api } from "@/lib/axios";
 
+export interface GetOrdersQuery {
+  pageIndex?: number | null;
+  orderId: string | null;
+  status: string | null;
+  customerName: string | null;
+}
+
 export interface GetOrdersResponse {
   orders: {
     orderId: string;
@@ -15,11 +22,14 @@ export interface GetOrdersResponse {
   };
 }
 
-export async function getOrders() {
+export async function getOrders({ pageIndex, orderId, customerName, status }: GetOrdersQuery) {
   const response = await api.get<GetOrdersResponse>("orders", {
     params: {
       //parametros de filtros e paginação
-      pageIndex: 0,
+      pageIndex,
+      orderId,
+      customerName,
+      status
     },
   });
 
