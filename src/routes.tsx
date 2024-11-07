@@ -7,6 +7,7 @@ import { SignUp } from "./pages/auth/sign-up";
 import { Orders } from "./pages/app/orders/orders";
 import { Error } from "./pages/404";
 import { NotFound } from "./pages/error";
+import { Clients } from "./pages/app/clients/clients";
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
       {
         path: "/orders",
         element: <Orders />,
+      },
+      {
+        path: "/clients",
+        element: <Clients />,
       },
     ],
   },
