@@ -8,5 +8,5 @@ export interface CreateClientBody {
 }
 
 export async function createClient({ name, email, phone, address }: CreateClientBody) {
-  await api.post("/client", { name, email, phone, address });
+  await api.post("/clients", { name, email, phone, address });
 }

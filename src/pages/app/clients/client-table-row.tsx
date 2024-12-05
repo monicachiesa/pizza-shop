@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { deleteClient } from "@/api/delete-client";
+import { aplicarMascaraTelefone } from "@/utils/masks";
+import { ClientEdit } from "./client-edit";
 
 interface ClientTableRowProps {
   client: {
@@ -23,14 +25,15 @@ interface ClientTableRowProps {
     name: string;
     email: string;
     phone: string | null;
+    address: string | null;
     createdAt: Date | null;
     updatedAt: Date | null;
   };
 }
 
 export function ClientTableRow({ client }: ClientTableRowProps) {
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const handleDeleteClient = async (id: string) => {
     try {
@@ -41,31 +44,38 @@ export function ClientTableRow({ client }: ClientTableRowProps) {
     }
   };
 
+  const handleEditClient = async (id: string) => {
+    setConfirmationModalOpen(true);
+  };
+
   return (
     <TableRow>
-      <TableCell>
-        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="xs">
-              <Search className="h-3 w-3" />
-              <span className="sr-only">Detalhes do cliente</span>
-            </Button>
-          </DialogTrigger>
-
-          {/*  <ClientDetails open={isDetailsOpen} clientId={client.clientId} />  /*/}
-        </Dialog>
-      </TableCell>
+      <TableCell></TableCell>
       <TableCell className="font-mono text-xs font-medium">
         {client.id}
       </TableCell>
       <TableCell className="text-muted-foreground">{client.name}</TableCell>
-      <TableCell>{client.email}</TableCell>
-      <TableCell className="font-medium">{client.phone}</TableCell>
+      <TableCell>{client.email?.toLocaleLowerCase()}</TableCell>
+      <TableCell className="font-medium">
+        {client.phone ? aplicarMascaraTelefone(client.phone) : "-"}
+      </TableCell>
       <TableCell></TableCell>
       <TableCell>
-        <Button variant="outline" size="xs">
-          <Edit className="h-3 w-3" />
-        </Button>
+        <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="xs">
+              <Edit className="h-3 w-3" />
+            </Button>
+          </DialogTrigger>
+          <ClientEdit
+            open={editModalOpen}
+            id={client.id}
+            name={client.name}
+            email={client.email}
+            phone={client.phone}
+            address={client.address}
+          />
+        </Dialog>
         <AlertDialog
           open={confirmationModalOpen}
           onOpenChange={setConfirmationModalOpen}

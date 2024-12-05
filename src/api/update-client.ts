@@ -9,5 +9,6 @@ export interface UpdateClientBody {
 }
 
 export async function updateClient({ id, name, email, phone, address }: UpdateClientBody) {
-  await api.put("/client", { id, name, email, phone, address });
+  await api.put("clients", { id, name, email, phone, address });
 }
+

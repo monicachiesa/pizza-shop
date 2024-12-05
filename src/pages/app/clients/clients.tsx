@@ -29,10 +29,6 @@ export function Clients() {
   const name = searchParams.get("name");
   const phone = searchParams.get("phone");
 
-  useEffect(() => {
-    console.log("result.clients", result);
-  }, []);
-
   const pageIndex = z.coerce
     .number()
     .transform((page) => page - 1)
@@ -69,7 +65,7 @@ export function Clients() {
                 Novo
               </Button>
             </DialogTrigger>
-            <ClientEdit open={isClientsOpen} id={"0"} name={""} email={""} phone={null} />
+            <ClientEdit open={isClientsOpen} id={"0"} name={""} email={""} phone={null} address={null} />
           </Dialog>
         </div>
         <div className="space-y-2.5">

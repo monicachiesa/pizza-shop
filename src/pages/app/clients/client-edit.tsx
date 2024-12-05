@@ -38,14 +38,13 @@ export interface ClientEditProps {
   open: boolean;
 }
 
-export function ClientEdit({ id, open }: ClientEditProps) {
-
+export function ClientEdit({ id, open, onClose }: ClientEditProps) {
   const queryClient = useQueryClient();
-  
+
   const { data: client } = useQuery({
-    queryKey: ["client", id],
+    queryKey: ["clients", id],
     queryFn: () => getClientDetails({ id }),
-    enabled: open && id != "0",
+    enabled: open && id != "" && id != 0,
   });
 
   const {
@@ -54,7 +53,6 @@ export function ClientEdit({ id, open }: ClientEditProps) {
     reset,
     formState: { isSubmitting },
   } = useForm<StoreProfileSchema>({
-    resolver: zodResolver(storeProfileSchema),
     defaultValues: {
       id: client?.id ?? "",
       name: client?.name ?? "",
@@ -64,18 +62,33 @@ export function ClientEdit({ id, open }: ClientEditProps) {
     },
   });
 
+  
+  // Atualizar o formulário quando os dados do cliente são carregados
+useEffect(() => {
+  if (client) {
+    reset({
+      id: client.id,
+      name: client.name,
+      email: client.email,
+      phone: client.phone,
+      address: client.address,
+    });
+  }
+}, [client, reset]);
+
   function updateClientCached({
+    id,
     name,
     email,
     phone,
     address,
   }: StoreProfileSchema) {
-    const cached = queryClient.getQueryData(["client"]);
+    const cached = queryClient.getQueryData(["client", id]);
 
     if (cached) {
-      queryClient.setQueryData(["client"], {
+      queryClient.setQueryData(["client", id], {
         ...cached,
-        name, //passa os campos que quer alterar
+        name,
         email,
         phone,
         address,
@@ -91,10 +104,10 @@ export function ClientEdit({ id, open }: ClientEditProps) {
     phone,
     address,
   }: StoreProfileSchema) {
-    const cached = queryClient.getQueryData(["client"]);
+    const cached = queryClient.getQueryData(["client", id]);
 
     if (cached) {
-      queryClient.setQueryData(["client"], {
+      queryClient.setQueryData(["client", id], {
         ...cached,
         name,
         email,
@@ -137,38 +150,31 @@ export function ClientEdit({ id, open }: ClientEditProps) {
   });
 
   async function handleCreateClient(data: StoreProfileSchema) {
-    event?.preventDefault();
-    console.log("Creating client with data:", data);
-
     try {
+      console.log("Tentando criar cliente com:", data);
       await createClientFn({
         name: data.name,
         email: data.email,
         phone: data.phone,
         address: data.address,
       });
-
       toast.success("Cliente criado com sucesso");
-
-      // Reset the form fields
       reset({
-        id: "", // Reset id to empty or default value
+        id: "",
         name: "",
         email: "",
         phone: null,
         address: null,
       });
+      onClose();
     } catch (e) {
+      console.error("Erro ao criar cliente:", e);
       toast.error("Falha ao criar cliente");
     }
   }
 
-  useEffect(() => {
-    console.log("ID:", id);
-  }, [id]);
-
   async function handleUpdateClient(data: StoreProfileSchema) {
-    console.log("Updating client with data:", data); 
+    console.log("Updating client with data:", data);
     try {
       await updateClientFn({
         id: data.id,
@@ -179,7 +185,7 @@ export function ClientEdit({ id, open }: ClientEditProps) {
       });
 
       toast.success("Cliente atualizado com sucesso");
-
+      onClose();
       // Reset the form fields, keeping the ID
       reset({
         id: data.id, // Keep the current ID
@@ -204,14 +210,14 @@ export function ClientEdit({ id, open }: ClientEditProps) {
 
       <div className="space-y-6">
         <form
-         onSubmit={handleSubmit(async (data) => {
-          console.log("Submitting:", data); // Log para verificar dados do formulário
-          if (id !== "0") {
-            await handleUpdateClient(data);
-          } else {
-            await handleCreateClient(data);
-          }
-        })}
+          onSubmit={handleSubmit((data) => {
+            console.log("Submitting:", data);
+            if (id != "0") {
+              handleUpdateClient(data);
+            } else {
+              handleCreateClient(data);
+            }
+          })}
         >
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">

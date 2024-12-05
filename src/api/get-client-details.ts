@@ -15,6 +15,6 @@ export interface GetClientDetailsResponse {
 
 export function getClientDetails({ id }: GetClientDetailsParams) {
   return api
-    .get<GetClientDetailsResponse>(`/clients/${id}`)
+    .get<GetClientDetailsResponse>(`clients/${id}`)
     .then((response) => response.data);
 }
